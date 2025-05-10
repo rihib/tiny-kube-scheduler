@@ -63,3 +63,11 @@ kubectl get pods
 kubectl describe pod high-priority-pod | awk '/Events:/,/pod to node/'
 kwokctl delete cluster
 ```
+
+## How to
+
+## Use specified scheduler
+
+```zsh
+kwokctl create cluster --kube-scheduler-binary=https://dl.k8s.io/v1.33.0/bin/linux/arm64/kube-scheduler
+```
