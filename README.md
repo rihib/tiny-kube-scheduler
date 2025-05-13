@@ -4,6 +4,8 @@ Tiny kube-scheduler implementation.
 
 ## Versions
 
+| Component | Version |
+| --------- | ------- |
 | Kubernetes | v1.33.0 |
 | Kustomize | v5.6.0 |
 | Go | go1.24.3 darwin/arm64 |
