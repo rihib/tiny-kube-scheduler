@@ -3,8 +3,8 @@ package queue
 import (
 	"sync"
 
-	"rihib.dev/tiny-kube-schedulers/pkg/scheduler/backend/heap"
-	"rihib.dev/tiny-kube-schedulers/pkg/scheduler/framework"
+	"rihib.dev/tiny-kube-scheduler/pkg/scheduler/backend/heap"
+	"rihib.dev/tiny-kube-scheduler/pkg/scheduler/framework"
 )
 
 // activeQueuer is a wrapper for activeQ related operations.

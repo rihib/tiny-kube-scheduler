@@ -1,4 +1,4 @@
-module rihib.dev/tiny-kube-schedulers/pkg/scheduler
+module rihib.dev/tiny-kube-scheduler/pkg/scheduler
 
 go 1.24.3
 

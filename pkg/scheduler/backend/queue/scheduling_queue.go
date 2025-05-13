@@ -7,8 +7,8 @@ import (
 	"k8s.io/client-go/informers"
 	"k8s.io/client-go/tools/cache"
 	"k8s.io/utils/clock"
-	"rihib.dev/tiny-kube-schedulers/pkg/scheduler/backend/heap"
-	"rihib.dev/tiny-kube-schedulers/pkg/scheduler/framework"
+	"rihib.dev/tiny-kube-scheduler/pkg/scheduler/backend/heap"
+	"rihib.dev/tiny-kube-scheduler/pkg/scheduler/framework"
 )
 
 type SchedulingQueue interface {

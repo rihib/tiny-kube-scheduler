@@ -1,7 +1,7 @@
 package scheduler
 
 import (
-	internalqueue "rihib.dev/tiny-kube-schedulers/pkg/scheduler/backend/queue"
+	internalqueue "rihib.dev/tiny-kube-scheduler/pkg/scheduler/backend/queue"
 )
 
 type Scheduler struct {

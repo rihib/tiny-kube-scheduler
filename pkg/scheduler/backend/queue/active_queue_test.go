@@ -3,9 +3,9 @@ package queue
 import (
 	"testing"
 
-	"rihib.dev/tiny-kube-schedulers/pkg/scheduler/backend/heap"
-	"rihib.dev/tiny-kube-schedulers/pkg/scheduler/framework"
-	st "rihib.dev/tiny-kube-schedulers/pkg/scheduler/testing"
+	"rihib.dev/tiny-kube-scheduler/pkg/scheduler/backend/heap"
+	"rihib.dev/tiny-kube-scheduler/pkg/scheduler/framework"
+	st "rihib.dev/tiny-kube-scheduler/pkg/scheduler/testing"
 )
 
 func TestClose(t *testing.T) {

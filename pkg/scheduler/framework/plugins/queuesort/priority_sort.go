@@ -3,8 +3,8 @@ package queuesort
 import (
 	"context"
 
-	"rihib.dev/tiny-kube-schedulers/pkg/scheduler/framework"
-	"rihib.dev/tiny-kube-schedulers/pkg/scheduler/framework/plugins/names"
+	"rihib.dev/tiny-kube-scheduler/pkg/scheduler/framework"
+	"rihib.dev/tiny-kube-scheduler/pkg/scheduler/framework/plugins/names"
 
 	"k8s.io/apimachinery/pkg/runtime"
 	corev1helpers "k8s.io/component-helpers/scheduling/corev1"
