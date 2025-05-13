@@ -6,6 +6,7 @@ import (
 	v1 "k8s.io/api/core/v1"
 	"k8s.io/client-go/informers"
 	"k8s.io/client-go/tools/cache"
+	"k8s.io/utils/clock"
 	"rihib.dev/tiny-kube-schedulers/pkg/scheduler/backend/heap"
 	"rihib.dev/tiny-kube-schedulers/pkg/scheduler/framework"
 )
@@ -19,6 +20,8 @@ func NewSchedulingQueue(lessFn framework.LessFunc, informerFactory informers.Sha
 }
 
 type PriorityQueue struct {
+	clock clock.WithTicker
+
 	// lock takes precedence and should be taken first,
 	// before any other locks in the queue (activeQueue.lock).
 	// Correct locking order is: lock > activeQueue.lock.
@@ -37,6 +40,11 @@ func NewPriorityQueue(lessFn framework.LessFunc, informerFactory informers.Share
 func (p *PriorityQueue) moveToActiveQ(pInfo *framework.QueuedPodInfo) bool {
 	added := false
 	p.activeQ.underLock(func(unlockedActiveQ unlockedActiveQueuer) {
+		if pInfo.InitialAttemptTimestamp == nil {
+			now := p.clock.Now()
+			pInfo.InitialAttemptTimestamp = &now
+		}
+
 		unlockedActiveQ.add(pInfo)
 		added = true
 	})
@@ -54,9 +62,14 @@ func (p *PriorityQueue) Add(pod *v1.Pod) {
 }
 
 func (p *PriorityQueue) newQueuedPodInfo(pod *v1.Pod) *framework.QueuedPodInfo {
+	now := p.clock.Now()
+	// ignore this err since apiserver doesn't properly validate affinity terms
+	// and we can't fix the validation for backwards compatibility.
 	podInfo, _ := framework.NewPodInfo(pod)
 	return &framework.QueuedPodInfo{
-		PodInfo: podInfo,
+		PodInfo:                 podInfo,
+		Timestamp:               now,
+		InitialAttemptTimestamp: nil,
 	}
 }
 

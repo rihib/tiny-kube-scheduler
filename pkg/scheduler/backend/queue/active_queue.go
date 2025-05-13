@@ -43,6 +43,7 @@ type activeQueue struct {
 	queue         *heap.Heap[*framework.QueuedPodInfo]
 	unlockedQueue *unlockedActiveQueue
 	cond          sync.Cond
+	closed        bool
 }
 
 func newActiveQueue(queue *heap.Heap[*framework.QueuedPodInfo]) *activeQueue {
@@ -59,6 +60,35 @@ func (aq *activeQueue) underLock(fn func(unlockedActiveQ unlockedActiveQueuer)) 
 	aq.lock.Lock()
 	defer aq.lock.Unlock()
 	fn(aq.unlockedQueue)
+}
+
+func (aq *activeQueue) pop() (*framework.QueuedPodInfo, error) {
+	aq.lock.Lock()
+	defer aq.lock.Unlock()
+
+	return aq.unlockedPop()
+}
+
+func (aq *activeQueue) unlockedPop() (*framework.QueuedPodInfo, error) {
+	var pInfo *framework.QueuedPodInfo
+	for aq.queue.Len() == 0 {
+		if aq.closed {
+			return nil, nil
+		}
+		aq.cond.Wait()
+	}
+	pInfo, err := aq.queue.Pop()
+	if err != nil {
+		return nil, err
+	}
+
+	return pInfo, nil
+}
+
+func (aq *activeQueue) close() {
+	aq.lock.Lock()
+	defer aq.lock.Unlock()
+	aq.closed = true
 }
 
 // broadcast notifies the pop() operation that new pod(s) was added to the activeQueue.

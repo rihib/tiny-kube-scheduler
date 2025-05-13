@@ -138,6 +138,10 @@ func (h *Heap[T]) AddOrUpdate(obj T) {
 	}
 }
 
+func (h *Heap[T]) Len() int {
+	return len(h.data.queue)
+}
+
 func New[T any](keyFn KeyFunc[T], lessFn LessFunc[T]) *Heap[T] {
 	return &Heap[T]{
 		data: &data[T]{
