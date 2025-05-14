@@ -3,6 +3,7 @@ package queue
 import (
 	"sync"
 
+	"k8s.io/klog/v2"
 	"rihib.dev/tiny-kube-scheduler/pkg/scheduler/backend/heap"
 	"rihib.dev/tiny-kube-scheduler/pkg/scheduler/framework"
 )
@@ -11,6 +12,9 @@ import (
 type activeQueuer interface {
 	underLock(func(unlockedActiveQ unlockedActiveQueuer))
 
+	pop(logger klog.Logger) (*framework.QueuedPodInfo, error)
+
+	close()
 	broadcast()
 }
 
@@ -62,14 +66,14 @@ func (aq *activeQueue) underLock(fn func(unlockedActiveQ unlockedActiveQueuer)) 
 	fn(aq.unlockedQueue)
 }
 
-func (aq *activeQueue) pop() (*framework.QueuedPodInfo, error) {
+func (aq *activeQueue) pop(logger klog.Logger) (*framework.QueuedPodInfo, error) {
 	aq.lock.Lock()
 	defer aq.lock.Unlock()
 
-	return aq.unlockedPop()
+	return aq.unlockedPop(logger)
 }
 
-func (aq *activeQueue) unlockedPop() (*framework.QueuedPodInfo, error) {
+func (aq *activeQueue) unlockedPop(logger klog.Logger) (*framework.QueuedPodInfo, error) {
 	var pInfo *framework.QueuedPodInfo
 	for aq.queue.Len() == 0 {
 		if aq.closed {

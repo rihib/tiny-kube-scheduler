@@ -6,13 +6,14 @@ import (
 	v1 "k8s.io/api/core/v1"
 	"k8s.io/client-go/informers"
 	"k8s.io/client-go/tools/cache"
+	"k8s.io/klog/v2"
 	"k8s.io/utils/clock"
 	"rihib.dev/tiny-kube-scheduler/pkg/scheduler/backend/heap"
 	"rihib.dev/tiny-kube-scheduler/pkg/scheduler/framework"
 )
 
 type SchedulingQueue interface {
-	Add(pod *v1.Pod)
+	Add(logger klog.Logger, pod *v1.Pod)
 }
 
 func NewSchedulingQueue(lessFn framework.LessFunc, informerFactory informers.SharedInformerFactory) SchedulingQueue {
@@ -30,14 +31,26 @@ type PriorityQueue struct {
 	activeQ activeQueuer
 }
 
+var defaultPriorityQueueOptions = priorityQueueOptions{
+	clock: clock.RealClock{},
+}
+
+type priorityQueueOptions struct {
+	clock clock.WithTicker
+}
+
 func NewPriorityQueue(lessFn framework.LessFunc, informerFactory informers.SharedInformerFactory) *PriorityQueue {
-	pq := &PriorityQueue{}
+	options := defaultPriorityQueueOptions
+
+	pq := &PriorityQueue{
+		clock: options.clock,
+	}
 	pq.activeQ = newActiveQueue(heap.New(podInfoKeyFunc, heap.LessFunc[*framework.QueuedPodInfo](lessFn)))
 	return pq
 }
 
 // moveToActiveQ tries to add the pod to the active queue.
-func (p *PriorityQueue) moveToActiveQ(pInfo *framework.QueuedPodInfo) bool {
+func (p *PriorityQueue) moveToActiveQ(_ klog.Logger, pInfo *framework.QueuedPodInfo) bool {
 	added := false
 	p.activeQ.underLock(func(unlockedActiveQ unlockedActiveQueuer) {
 		if pInfo.InitialAttemptTimestamp == nil {
@@ -51,12 +64,12 @@ func (p *PriorityQueue) moveToActiveQ(pInfo *framework.QueuedPodInfo) bool {
 	return added
 }
 
-func (p *PriorityQueue) Add(pod *v1.Pod) {
+func (p *PriorityQueue) Add(logger klog.Logger, pod *v1.Pod) {
 	p.lock.Lock()
 	defer p.lock.Unlock()
 
 	pInfo := p.newQueuedPodInfo(pod)
-	if added := p.moveToActiveQ(pInfo); added {
+	if added := p.moveToActiveQ(logger, pInfo); added {
 		p.activeQ.broadcast()
 	}
 }

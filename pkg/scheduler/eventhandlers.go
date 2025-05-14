@@ -4,6 +4,7 @@ import (
 	v1 "k8s.io/api/core/v1"
 	"k8s.io/client-go/informers"
 	"k8s.io/client-go/tools/cache"
+	"k8s.io/klog/v2"
 )
 
 func addAllEventHandlers(sched *Scheduler, informerFactory informers.SharedInformerFactory) error {
@@ -35,6 +36,8 @@ func assignedPod(pod *v1.Pod) bool {
 }
 
 func (sched *Scheduler) addPodToSchedulingQueue(obj interface{}) {
+	logger := sched.logger
 	pod := obj.(*v1.Pod)
-	sched.SchedulingQueue.Add(pod)
+	logger.V(3).Info("Add event for unscheduled pod", "pod", klog.KObj(pod))
+	sched.SchedulingQueue.Add(logger, pod)
 }
