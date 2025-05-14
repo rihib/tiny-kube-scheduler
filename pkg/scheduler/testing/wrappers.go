@@ -35,3 +35,9 @@ func (p *PodWrapper) Namespace(s string) *PodWrapper {
 	p.SetNamespace(s)
 	return p
 }
+
+// Priority sets a priority value into PodSpec of the inner pod.
+func (p *PodWrapper) Priority(val int32) *PodWrapper {
+	p.Spec.Priority = &val
+	return p
+}
