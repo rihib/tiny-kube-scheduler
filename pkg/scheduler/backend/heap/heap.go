@@ -138,6 +138,14 @@ func (h *Heap[T]) AddOrUpdate(obj T) {
 	}
 }
 
+func (h *Heap[T]) List() []T {
+	list := make([]T, 0, len(h.data.items))
+	for _, item := range h.data.items {
+		list = append(list, item.obj)
+	}
+	return list
+}
+
 func (h *Heap[T]) Len() int {
 	return len(h.data.queue)
 }

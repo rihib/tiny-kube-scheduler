@@ -14,6 +14,11 @@ import (
 
 type SchedulingQueue interface {
 	Add(logger klog.Logger, pod *v1.Pod)
+	// Pop removes the head of the queue and returns it. It blocks if the
+	// queue is empty and waits until a new item is added to the queue.
+	Pop(logger klog.Logger) (*framework.QueuedPodInfo, error)
+
+	PodsInActiveQ() []*v1.Pod
 }
 
 func NewSchedulingQueue(lessFn framework.LessFunc, informerFactory informers.SharedInformerFactory) SchedulingQueue {
@@ -72,6 +77,20 @@ func (p *PriorityQueue) Add(logger klog.Logger, pod *v1.Pod) {
 	if added := p.moveToActiveQ(logger, pInfo); added {
 		p.activeQ.broadcast()
 	}
+}
+
+// PodsInActiveQ returns all the Pods in the activeQ.
+func (p *PriorityQueue) PodsInActiveQ() []*v1.Pod {
+	return p.activeQ.list()
+}
+
+// Pop removes the head of the active queue and returns it. It blocks if the
+// activeQ is empty and waits until a new item is added to the queue. It
+// increments scheduling cycle when a pod is popped.
+// Note: This method should NOT be locked by the p.lock at any moment,
+// as it would lead to scheduling throughput degradation.
+func (p *PriorityQueue) Pop(logger klog.Logger) (*framework.QueuedPodInfo, error) {
+	return p.activeQ.pop(logger)
 }
 
 func (p *PriorityQueue) newQueuedPodInfo(pod *v1.Pod) *framework.QueuedPodInfo {

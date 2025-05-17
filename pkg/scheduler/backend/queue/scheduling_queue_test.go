@@ -5,7 +5,6 @@ import (
 	"testing"
 
 	v1 "k8s.io/api/core/v1"
-	"k8s.io/klog/v2"
 	"k8s.io/klog/v2/ktesting"
 	"rihib.dev/tiny-kube-scheduler/pkg/scheduler/framework"
 	"rihib.dev/tiny-kube-scheduler/pkg/scheduler/framework/plugins/queuesort"
@@ -15,7 +14,7 @@ import (
 // original
 var (
 	podInfo = mustNewPodInfo(
-		st.MakePod().Name("p").Namespace("ns").UID("pns").Obj(),
+		st.MakePod().Name("p").Obj(),
 	)
 )
 
@@ -34,10 +33,6 @@ func TestPriorityQueue_Add(t *testing.T) {
 func newDefaultQueueSort() framework.LessFunc {
 	sort := &queuesort.PrioritySort{}
 	return sort.Less
-}
-
-func (p *PriorityQueue) Pop(logger klog.Logger) (*framework.QueuedPodInfo, error) {
-	return p.activeQ.pop(logger)
 }
 
 func mustNewPodInfo(pod *v1.Pod) *framework.PodInfo {

@@ -6,6 +6,9 @@ import (
 )
 
 type Scheduler struct {
+	// Close this to shut down the scheduler.
+	StopEverything <-chan struct{}
+
 	// SchedulingQueue holds pods to be scheduled
 	SchedulingQueue internalqueue.SchedulingQueue
 
