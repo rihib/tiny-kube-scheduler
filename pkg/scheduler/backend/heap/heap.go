@@ -130,7 +130,7 @@ func (h *Heap[T]) Pop() (T, error) {
 // already exists.
 func (h *Heap[T]) AddOrUpdate(obj T) {
 	key := h.data.keyFunc(obj)
-	if _, exists := h.data.items[key]; exists { // TODO: replace exists with ok
+	if _, exists := h.data.items[key]; exists {
 		h.data.items[key].obj = obj
 		heap.Fix(h.data, h.data.items[key].index)
 	} else {

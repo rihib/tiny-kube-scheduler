@@ -8,7 +8,7 @@ func testHeapObjectKeyFunc(obj testHeapObject) string {
 
 type testHeapObject struct {
 	name string
-	val  interface{} // TODO: interface{} can be replaced by any
+	val  interface{}
 }
 
 func mkHeapObj(name string, val interface{}) testHeapObject {
@@ -21,7 +21,6 @@ func compareInts(val1 testHeapObject, val2 testHeapObject) bool {
 	return first < second
 }
 
-// TODO: add testcases
 func TestHeapBasic(t *testing.T) {
 	h := New(testHeapObjectKeyFunc, compareInts)
 	const amount = 500
@@ -44,7 +43,7 @@ func TestHeapBasic(t *testing.T) {
 
 	// Make sure that the numbers are popped in ascending order.
 	prevNum := 0
-	for i := 0; i < amount; i++ { // TODO: for loop can be modernized using range over int
+	for i := 0; i < amount; i++ {
 		item, err := h.Pop()
 		num := item.val.(int)
 		// All the items must be sorted.
